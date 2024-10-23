@@ -22,8 +22,8 @@ void mainTask(void *pvPara) {
 
   while (true) {
 
-
-    vTaskDelay(1);
+  
+    vTaskDelay(2);
   }
 }
 
