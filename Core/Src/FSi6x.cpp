@@ -1,7 +1,6 @@
 #include "FSi6x.hpp"
 
-// TODO: Include the header file of the UART module
-// #include "usart.h"
+#include "usart.h"
 
 namespace FSi6x
 {
