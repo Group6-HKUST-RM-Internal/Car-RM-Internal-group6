@@ -58,12 +58,12 @@ namespace FSi6x
 
     void rcCallback(UART_HandleTypeDef *huart, uint16_t size)
     {
-
+        // TODO: Implement the callback function of the UART data reception
     }
 
     void erCallback(UART_HandleTypeDef *huart)
     {
-
+        // TODO: Implement the callback function of the UART error
     }
 
     void init()
