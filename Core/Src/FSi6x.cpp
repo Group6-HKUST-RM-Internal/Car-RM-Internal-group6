@@ -1,6 +1,7 @@
 #include "FSi6x.hpp"
 
-#include "usart.h"
+// TODO: Include the header file of the UART module
+// #include "usart.h"
 
 namespace FSi6x
 {
@@ -35,5 +36,38 @@ namespace FSi6x
 
         // Is fail safe activated of the remote controller
         bool failSafeActivated;
+
+        // Is connected to the remote controller
+        bool isConnected;
+
+        // Is error of the remote controller
+        bool isError;
     };
+
+    RcData rcData;
+
+    const RcData *getRcData()
+    {
+        return &rcData;
+    }
+
+    void resetData()
+    {
+        // TODO: Implement the reset data of the FSi6X module
+    }
+
+    void rcCallback(UART_HandleTypeDef *huart, uint16_t size)
+    {
+
+    }
+
+    void erCallback(UART_HandleTypeDef *huart)
+    {
+
+    }
+
+    void init()
+    {
+        // TODO: Implement the initialization of the FSi6X module
+    }
 }

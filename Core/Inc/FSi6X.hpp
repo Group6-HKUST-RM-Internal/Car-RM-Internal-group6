@@ -2,7 +2,7 @@
 
 #include "string.h"
 
-#proama once
+#pragma once
 
 namespace FSi6x
 {
