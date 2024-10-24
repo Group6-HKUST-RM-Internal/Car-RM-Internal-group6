@@ -55,9 +55,30 @@ namespace FSi6x
         // TODO: Implement the reset data of the FSi6X module
     }
 
+    // Define the buffer of the remote controller
+    static uint8_t rcBuff[25];
+
     void rcCallback(UART_HandleTypeDef *huart, uint16_t size)
     {
         // TODO: Implement the callback function of the UART data reception
+
+        // Decode the remote controller data
+        rcData.channel1 = (rcBuff[1] | (rcBuff[2] << 8)) & 0x7FF;
+        rcData.channel2 = ((rcBuff[2] >> 3) | (rcBuff[3] << 5)) & 0x7FF;
+        rcData.channel3 = ((rcBuff[3] >> 6) | (rcBuff[4] << 2) | (rcBuff[5] << 10)) & 0x7FF;
+        rcData.channel4 = ((rcBuff[5] >> 1) | (rcBuff[6] << 7)) & 0x7FF;
+        rcData.channel5 = ((rcBuff[6] >> 4) | (rcBuff[7] << 4)) & 0x7FF;
+        rcData.channel6 = ((rcBuff[7] >> 7) | (rcBuff[8] << 1) | (rcBuff[9] << 9)) & 0x7FF;
+        rcData.channel7 = ((rcBuff[9] >> 2) | (rcBuff[10] << 6)) & 0x7FF;
+        rcData.channel8 = ((rcBuff[10] >> 5) | (rcBuff[11] << 3)) & 0x7FF;
+        rcData.channel9 = (rcBuff[12] | rcBuff[13] << 8) & 0x7FF;
+        rcData.channel10 = ((rcBuff[13] >> 3) | (rcBuff[14] << 5)) & 0x7FF;
+        rcData.channel11 = ((rcBuff[14] >> 6) | (rcBuff[15] << 2) | (rcBuff[16] << 10)) & 0x7FF;
+        rcData.channel12 = ((rcBuff[16] >> 1) | (rcBuff[17] << 7)) & 0x7FF;
+        rcData.channel13 = ((rcBuff[17] >> 4) | (rcBuff[18] << 4)) & 0x7FF;
+        rcData.channel14 = ((rcBuff[18] >> 7) | (rcBuff[19] << 1) | (rcBuff[20] << 9)) & 0x7FF;
+        rcData.channel15 = ((rcBuff[20] >> 2) | (rcBuff[21] << 6)) & 0x7FF;
+        rcData.channel16 = ((rcBuff[21] >> 5) | (rcBuff[22] << 3)) & 0x7FF;
     }
 
     void erCallback(UART_HandleTypeDef *huart)
