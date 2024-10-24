@@ -139,7 +139,6 @@ namespace FSi6x
         // Let the counter task run forever to check the performance of the system
         while (true)
         {
-            counter++;
 
             if(counter > 200)
             {
@@ -151,6 +150,9 @@ namespace FSi6x
 
                 // Set the error flag of the remote controller
                 rcData.isError = true;
+            }else 
+            {
+                counter ++;
             }
 
             vTaskDelay(1);
