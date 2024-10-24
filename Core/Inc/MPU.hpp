@@ -31,10 +31,4 @@ namespace MPU
 
     // Reset the data of the IMU
     void resetData();
-
-    // Define the callback function of the I2C data reception
-    void imuCallback(I2C_HandleTypeDef *hi2c, uint16_t size);
-
-    // Define the callback function of the I2C error
-    void erCallback(I2C_HandleTypeDef *hi2c);
 }
