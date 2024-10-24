@@ -1,5 +1,7 @@
+#include "main.h"
 #include "FSi6x.hpp"
-
+#include "FreeRTOS.h"
+#include "task.h"
 #include "usart.h"
 
 namespace FSi6x
@@ -34,7 +36,6 @@ namespace FSi6x
         rcData.channel18 = false;
         rcData.isFrameLost = false;
         rcData.isFailSafeActivated = false;   
-        // TODO: Implement the reset data of the FSi6X module
     }
 
     // Define the buffer of the remote controller
@@ -129,9 +130,37 @@ namespace FSi6x
         return false;
     }
 
+    uint32_t counter = 0;
+    StackType_t uxCounterTaskStack[256];
+    StaticTask_t xCounterTaskTCB;
+
+    void counterTask(void *pvPara)
+    {
+        // Let the counter task run forever to check the performance of the system
+        while (true)
+        {
+            counter++;
+
+            if(counter > 200)
+            {
+                // Reset the data of the remote controller
+                resetData();
+
+                // Set the remote controller is not connected
+                rcData.isConnected = false;
+
+                // Set the error flag of the remote controller
+                rcData.isError = true;
+            }
+
+            vTaskDelay(1);
+        }
+    }
+
     void rcCallback(UART_HandleTypeDef *huart, uint16_t size)
     {
-        // TODO: Implement the callback function of the UART data reception
+        // Reset the counter
+        counter = 0;
 
         // Initialize the remote controller status
         rcData.isConnected = true;
@@ -263,6 +292,9 @@ namespace FSi6x
 
         // Start the first round of the UART data reception
         HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
+
+        // Create the counter task
+        xTaskCreateStatic(counterTask, "counterTask", 256, NULL, 0, uxCounterTaskStack, &xCounterTaskTCB);
 
         // Reset the data of the remote controller
         resetData();
