@@ -40,6 +40,95 @@ namespace FSi6x
     // Define the buffer of the remote controller
     static uint8_t rcBuff[25];
 
+    bool checkRange()
+    {
+
+        // Check if the remote controller data is within the range
+
+        if(rcData.channel1 < 240 || rcData.channel1 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel2 < 240 || rcData.channel2 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel3 < 240 || rcData.channel3 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel4 < 240 || rcData.channel4 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel5 < 240 || rcData.channel5 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel6 < 240 || rcData.channel6 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel7 < 240 || rcData.channel7 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel8 < 240 || rcData.channel8 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel9 < 240 || rcData.channel9 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel10 < 240 || rcData.channel10 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel11 < 240 || rcData.channel11 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel12 < 240 || rcData.channel12 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel13 < 240 || rcData.channel13 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel14 < 240 || rcData.channel14 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel15 < 240 || rcData.channel15 > 1807)
+        {
+            return true;
+        }
+
+        if(rcData.channel16 < 240 || rcData.channel16 > 1807)
+        {
+            return true;
+        }
+
+        // Return false if all the channels are within the range
+        return false;
+    }
+
     void rcCallback(UART_HandleTypeDef *huart, uint16_t size)
     {
         // TODO: Implement the callback function of the UART data reception
@@ -105,6 +194,45 @@ namespace FSi6x
         rcData.channel18 = rcBuff[23] & 0x02;
         rcData.isFrameLost = rcBuff[23] & 0x04;
         rcData.isFailSafeActivated = rcBuff[23] & 0x08;
+
+        // Check if the remote controller is in failsafe mode or frame lost
+        if(rcData.isFailSafeActivated || rcData.isFrameLost)
+        {
+            // Reset the data of the remote controller
+            resetData();
+
+            // Set the remote controller is not connected
+            rcData.isConnected = false;
+
+            // Set the error flag of the remote controller
+            rcData.isError = true;
+
+            // Receive the next round of the UART data reception
+            HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
+
+            // Avoid the following code execution
+            return;
+        }
+
+
+        // Check if the remote controller data is within the range
+        if(checkRange())
+        {
+            // Reset the data of the remote controller
+            resetData();
+
+            // Set the remote controller is not connected
+            rcData.isConnected = false;
+
+            // Set the error flag of the remote controller
+            rcData.isError = true;
+
+            // Receive the next round of the UART data reception
+            HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
+
+            // Avoid the following code execution
+            return;
+        }
 
         // Receive the next round of the UART data reception
         HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
