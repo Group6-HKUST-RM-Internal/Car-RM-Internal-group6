@@ -12,11 +12,11 @@ float PID::update(float target, float measurement, float dt)
   output = pOut + iOut + dOut;
   if (output > 16384)
   {
-    output = 1000;
+    output = 16384;
   }
   if (output < -16384)
   {
-    output = -1000;
+    output = -16384;
   }
   return output;
 }

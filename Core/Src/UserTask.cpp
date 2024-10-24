@@ -34,7 +34,8 @@ static uint8_t lastButtonState1 = 0;
 static bool motorOn = false;
 static int16_t current = 0;
 
-static PID rpm_PID(0,0,0);
+static PID rpm_PID(500,50,0);
+
 static PID pos_PID(0,0,0);
 
 static float targetRPM = 0; // target rpm
@@ -66,7 +67,7 @@ void mainTask(void *pvPara) {
       pos_PID.reset();
     }
 
-    transmit(800);
+    transmit(current);
     lastButtonState0 = readButton0();
     lastButtonState1 = readButton1();
     vTaskDelay(1);
