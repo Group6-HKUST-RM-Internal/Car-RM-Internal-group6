@@ -12,27 +12,17 @@
 #include "gpio.h"
 #include "main.h"
 #include "task.h"
-#include "FSi6x.hpp"
-
 
 StackType_t uxMainTaskStack[configMINIMAL_STACK_SIZE];
 StaticTask_t xMainTaskTCB;
 
-// an example task
-void mainTask(void *pvPara) {
+// Define the motor
+M3508 m3508[4];
 
-  // Initialize the FSi6X module
-  FSi6x::init();
-
-  // Define the remote controller data
-  static FSi6x::RcData rcData;
-
-  while (true) {
-
-    // Get the remote controller data
-    rcData = *FSi6x::getRcData();
-  
+static int16_t current[4]; // Array of current for each motor. ID=1 motor corresponds to current[0], and so on
     vTaskDelay(1);
+    // Delay the whole program for 1ms after executing a round of loop
+    // This is important because we do not want our program to refresh too fast.
   }
 }
 
@@ -40,7 +30,8 @@ void mainTask(void *pvPara) {
  * @brief Intialize all the drivers and add task to the scheduler
  * @todo  Add your own task in this file
  */
-void startUserTasks() {
+void startUserTasks()
+{
   xTaskCreateStatic(mainTask, "testTask", configMINIMAL_STACK_SIZE, NULL, 0,
                     uxMainTaskStack, &xMainTaskTCB);
   /**
