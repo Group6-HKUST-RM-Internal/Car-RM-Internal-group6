@@ -79,7 +79,7 @@ namespace FSi6x
             Byte[24]: footer
 
         */
-       
+
         rcData.channel1 = (rcBuff[1] | (rcBuff[2] << 8)) & 0x7FF;
         rcData.channel2 = ((rcBuff[2] >> 3) | (rcBuff[3] << 5)) & 0x7FF;
         rcData.channel3 = ((rcBuff[3] >> 6) | (rcBuff[4] << 2) | (rcBuff[5] << 10)) & 0x7FF;
