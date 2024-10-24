@@ -4,6 +4,7 @@
 
 namespace FSi6x
 {
+    // Constructor
     typedef struct RcData
     {
         
