@@ -44,6 +44,29 @@ namespace FSi6x
     {
         // TODO: Implement the callback function of the UART data reception
 
+        // Initialize the remote controller status
+        rcData.isConnected = true;
+        rcData.isError = false;
+
+        // Check the header of the remote controller data
+        if(rcBuff[0] != 0x0F)
+        {
+            // Reset the data of the remote controller
+            resetData();
+
+            // Set the remote controller is not connected
+            rcData.isConnected = false;
+
+            // Set the error flag of the remote controller
+            rcData.isError = true;
+
+            // Receive the next round of the UART data reception
+            HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
+
+            // Avoid the following code execution
+            return;
+        }
+
         // Decode the remote controller data
 
         /*
