@@ -63,7 +63,7 @@
 /*#define HAL_SPI_MODULE_ENABLED   */
 /*#define HAL_SRAM_MODULE_ENABLED   */
 #define HAL_TIM_MODULE_ENABLED
-/*#define HAL_UART_MODULE_ENABLED   */
+#define HAL_UART_MODULE_ENABLED
 /*#define HAL_USART_MODULE_ENABLED   */
 /*#define HAL_WWDG_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
@@ -104,8 +104,8 @@
 #define USE_HAL_SPI_REGISTER_CALLBACKS        0U
 #define USE_HAL_SRAM_REGISTER_CALLBACKS       0U
 #define USE_HAL_TIM_REGISTER_CALLBACKS        0U
-#define USE_HAL_UART_REGISTER_CALLBACKS       0U
-#define USE_HAL_USART_REGISTER_CALLBACKS      0U
+#define USE_HAL_UART_REGISTER_CALLBACKS       1U
+#define USE_HAL_USART_REGISTER_CALLBACKS      1U
 #define USE_HAL_WWDG_REGISTER_CALLBACKS       0U
 
 /* ########################## Oscillator Values adaptation ####################*/
