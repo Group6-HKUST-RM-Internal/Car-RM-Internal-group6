@@ -30,7 +30,7 @@ namespace FSi6x
         uint16_t channel17;
         uint16_t channel18;
 
-        // is Frame lost of the remote controller
+        // Is Frame lost of the remote controller
         bool isFrameLost;
 
         // Is fail safe activated of the remote controller
@@ -63,6 +63,23 @@ namespace FSi6x
         // TODO: Implement the callback function of the UART data reception
 
         // Decode the remote controller data
+
+        /*
+            FSi6X Remote Controller Data Format
+
+            Total Data Length: 25 Bytes
+
+            Byte[0]: header, 0x0F
+            Byte[1 -22]: 1 - 16 channels, 11 bits each
+            Byte[23]
+            Bit 0: channel 17 0x01)
+            Bit 1: channel 18 0x02)
+            Bit 2: frame lost 0x04)
+            Bit 3: failsafe activated 0x08)
+            Byte[24]: footer
+
+        */
+       
         rcData.channel1 = (rcBuff[1] | (rcBuff[2] << 8)) & 0x7FF;
         rcData.channel2 = ((rcBuff[2] >> 3) | (rcBuff[3] << 5)) & 0x7FF;
         rcData.channel3 = ((rcBuff[3] >> 6) | (rcBuff[4] << 2) | (rcBuff[5] << 10)) & 0x7FF;
@@ -83,17 +100,38 @@ namespace FSi6x
         rcData.channel18 = rcBuff[23] & 0x02;
         rcData.isFrameLost = rcBuff[23] & 0x04;
         rcData.isFailSafeActivated = rcBuff[23] & 0x08;
+
+        // Receive the next round of the UART data reception
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
     }
 
     void erCallback(UART_HandleTypeDef *huart)
     {
-        // TODO: Implement the callback function of the UART error
+        // Reset the data of the remote controller
+        resetData();
+
+        // Set the error flag of the remote controller
+        rcData.isError = true;
+
+        // Receive the next round of the UART data reception
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
     }
 
     void init()
     {
-        // TODO: Implement the initialization of the FSi6X module
+        // Register the callback function of the UART data reception
         HAL_UART_RegisterRxEventCallback(&huart3, rcCallback);
+
+        // Register the callback function of the UART error
         HAL_UART_RegisterCallback(&huart3, HAL_UART_ERROR_CB_ID, erCallback);
+
+        // Start the first round of the UART data reception
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
+
+        // Set the remote controller is connected
+        rcData.isConnected = true;
+
+        // Set the remote controller is not error
+        rcData.isError = false;
     }
 }
