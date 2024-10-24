@@ -13,7 +13,7 @@ static inline int16_t clamp(int16_t value, int16_t min, int16_t max) {
   return value < min ? min : value > max ? max : value;
 }
 
-M3508 *motor;
+M3508 *motor[4];
 
 static bool motorRegistered = false;
 
@@ -42,54 +42,75 @@ void CAN_RxCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
   if (RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) {
     FDCAN_RxHeaderTypeDef rxHeader;
     HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &rxHeader, can_rx_buf);
-
     // decode
     static int32_t rotoryCnt = 0;
     static uint16_t lastRawEncoder = 0;
+    static M3508 *motorTemp = nullptr;
+    switch (rxHeader.Identifier) {
+    case 0x201:
+      motorTemp = motor[0];
+      break;
+    case 0x202:
+      motorTemp = motor[1];
+      break;
+    case 0x203:
+      motorTemp = motor[2];
+      break;
+    case 0x204:
+      motorTemp = motor[3];
+      break;
+    default:
+      break;
+    }
 
-    motor->id = rxHeader.Identifier;
-    motor->rawEncoder = (can_rx_buf[0] << 8) | can_rx_buf[1];
-    motor->rotorRPM = (can_rx_buf[2] << 8) | can_rx_buf[3];
-    motor->torque_current = (can_rx_buf[4] << 8) | can_rx_buf[5];
-    motor->temperature = can_rx_buf[6];
+    motorTemp->id = rxHeader.Identifier;
+    motorTemp->rawEncoder = (can_rx_buf[0] << 8) | can_rx_buf[1];
+    motorTemp->rotorRPM = (can_rx_buf[2] << 8) | can_rx_buf[3];
+    motorTemp->torque_current = (can_rx_buf[4] << 8) | can_rx_buf[5];
+    motorTemp->temperature = can_rx_buf[6];
 
-    if (motor->rawEncoder - lastRawEncoder > 4096) {
+    if (motorTemp->rawEncoder - lastRawEncoder > 4096) {
       rotoryCnt--;
-    } else if (motor->rawEncoder - lastRawEncoder < -4096) {
+    } else if (motorTemp->rawEncoder - lastRawEncoder < -4096) {
       rotoryCnt++;
     }
 
-    motor->accumulatedPosition = (rotoryCnt * 8192 + motor->rawEncoder) /
+    motorTemp->accumulatedPosition = (rotoryCnt * 8192 + motorTemp->rawEncoder) /
                                  8192.0f * 2 * 3.1415926f /
                                  M3508_REDUCTION_RATIO;
-    motor->rpm = (float)motor->rotorRPM / M3508_REDUCTION_RATIO;
+    motorTemp->rpm = (float)motorTemp->rotorRPM / M3508_REDUCTION_RATIO;
 
-    lastRawEncoder = motor->rawEncoder;
+    lastRawEncoder = motorTemp->rawEncoder;
   }
 }
 
-void transmit(int16_t current) {
+// transmit current to BigMotor with ID = 2
+void transmit(int16_t current[4]) {
 
-  int16_t val = (clamp(current, -8000, 8000));
+  for(int i = 0; i<4;i++)
+    current[i] = (clamp(current[i], -8000, 8000));
 
-  can_tx_buf[0] = (val >> 8) & 0xFF;
-  can_tx_buf[1] = (val & 0xFF);
-  can_tx_buf[2] = (val >> 8) & 0xFF;
-  can_tx_buf[3] = (val & 0xFF);
-  can_tx_buf[4] = (val >> 8) & 0xFF;
-  can_tx_buf[5] = (val & 0xFF);
-  can_tx_buf[6] = (val >> 8) & 0xFF;
-  can_tx_buf[7] = (val & 0xFF);
+  can_tx_buf[0] = (current[0] >> 8) & 0xFF;
+  can_tx_buf[1] = (current[0] & 0xFF);
+  can_tx_buf[2] = (current[1] >> 8) & 0xFF;
+  can_tx_buf[3] = (current[1] & 0xFF);
+  can_tx_buf[4] = (current[2] >> 8) & 0xFF;
+  can_tx_buf[5] = (current[2] & 0xFF);
+  can_tx_buf[6] = (current[3] >> 8) & 0xFF;
+  can_tx_buf[7] = (current[3] & 0xFF);
 
   HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, can_tx_buf);
 }
 
-void initMotor(M3508 *motor_) {
+void initMotor(M3508 motor_[4]) {
   if (motor_ == nullptr || motorRegistered)
     return;
-  motor = motor_;
+  for (int i = 0; i < 4; ++i) {
+    motor[i] = &motor_[i];
+  }
 
   HAL_FDCAN_RegisterRxFifo0Callback(&hfdcan1, CAN_RxCallback);
+
   HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT,
                                FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
   HAL_FDCAN_ConfigFilter(&hfdcan1, &filter);
@@ -100,6 +121,7 @@ void initMotor(M3508 *motor_) {
 
   motorRegistered = true;
 }
+
 }
 
 #undef M3508_REDUCTION_RATIO

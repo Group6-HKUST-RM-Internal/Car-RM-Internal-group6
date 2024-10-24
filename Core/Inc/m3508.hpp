@@ -21,8 +21,7 @@ struct M3508 {
   float rpm;
 };
 
-void initMotor(M3508 *motor_);
+void initMotor(M3508 motor_[4]);
 
-void transmit(int16_t current);
-
+void transmit(int16_t current[4]);
 }
