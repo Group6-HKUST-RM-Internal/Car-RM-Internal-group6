@@ -18,45 +18,23 @@
 StackType_t uxMainTaskStack[configMINIMAL_STACK_SIZE];
 StaticTask_t xMainTaskTCB;
 
-uint8_t readButton0(void) {
-  return !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-}
-
-uint8_t readButton1(void) {
-  return !HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_14);
-}
-
-
+// Define the motor
 M3508 m3508[4];
 
-static bool motorOn = false;
-static int16_t current[4];
 
-static PID rpm_PID(500,50,0);
-static PID rmp_PID_small(100,10,0);
+static int16_t current[4]; //Array of current for each motor. ID=1 motor corresponds to current[0], and so on
 
-static float targetRPM = 0; // target rpm
+static PID rpm_PID(500,50,0); // PID controller for RPM
+
+static float targetRPM[4]; // target rpm
 
 
 // an example task
 void mainTask(void *pvPara) {
+  // Initialize the motor
   initMotor(m3508);
   while (1) {
-    // Press & Release detection (flip motorOn when button is from pressed to
-    // released)
-    // TODO: implement the PID controller to control the rpm or position
-      // Start spinning when motorOn == 1, set a current to some value
-    if(readButton0()){
-    current[0] = rmp_PID_small.update(targetRPM, m3508[0].rpm);
-    current[1] = rmp_PID_small.update(targetRPM, m3508[1].rpm);
-    transmit(current);
     vTaskDelay(1);
-    }
-    current[0] = 0;
-    current[1] = 0;
-    current[2] = 0;
-    current[3] = 0;
-    transmit(current);
     // Delay the whole program for 1ms after executing a round of loop
     // This is important because we do not want our program to refresh too fast.
   }

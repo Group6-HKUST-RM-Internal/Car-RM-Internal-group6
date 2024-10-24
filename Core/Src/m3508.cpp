@@ -20,6 +20,7 @@ static bool motorRegistered = false;
 static uint8_t can_tx_buf[8];
 static uint8_t can_rx_buf[8];
 
+// CAN Send Header. For ID1-ID4 with Identifier = 0x200
 FDCAN_TxHeaderTypeDef txHeader = {.Identifier = 0x200,
                                   .IdType = FDCAN_STANDARD_ID,
                                   .TxFrameType = FDCAN_DATA_FRAME,
@@ -37,6 +38,8 @@ FDCAN_FilterTypeDef filter = {.IdType = FDCAN_STANDARD_ID,
                               .FilterID1 = 0x200,
                               .FilterID2 = 0x7F0};
 
+
+// Callback function for CAN receive. According to the ID, assign the data to the corresponding motor
 void CAN_RxCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
   // some data treatment
   if (RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) {
@@ -84,7 +87,7 @@ void CAN_RxCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
   }
 }
 
-// transmit current to BigMotor with ID = 2
+// transmit current to the motors in ID1-4
 void transmit(int16_t current[4]) {
 
   for(int i = 0; i<4;i++)
@@ -102,6 +105,7 @@ void transmit(int16_t current[4]) {
   HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, can_tx_buf);
 }
 
+// Initialize the motor
 void initMotor(M3508 motor_[4]) {
   if (motor_ == nullptr || motorRegistered)
     return;
@@ -116,12 +120,9 @@ void initMotor(M3508 motor_[4]) {
   HAL_FDCAN_ConfigFilter(&hfdcan1, &filter);
   HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE,
                                  0xFFFFFFFF);
-
   HAL_FDCAN_Start(&hfdcan1);
-
   motorRegistered = true;
 }
-
 }
 
 #undef M3508_REDUCTION_RATIO
