@@ -30,11 +30,11 @@ namespace FSi6x
         uint16_t channel17;
         uint16_t channel18;
 
-        // Frame lost of the remote controller
-        bool frameLost;
+        // is Frame lost of the remote controller
+        bool isFrameLost;
 
         // Is fail safe activated of the remote controller
-        bool failSafeActivated;
+        bool isFailSafeActivated;
 
         // Is connected to the remote controller
         bool isConnected;
@@ -79,6 +79,10 @@ namespace FSi6x
         rcData.channel14 = ((rcBuff[18] >> 7) | (rcBuff[19] << 1) | (rcBuff[20] << 9)) & 0x7FF;
         rcData.channel15 = ((rcBuff[20] >> 2) | (rcBuff[21] << 6)) & 0x7FF;
         rcData.channel16 = ((rcBuff[21] >> 5) | (rcBuff[22] << 3)) & 0x7FF;
+        rcData.channel17 = rcBuff[23] & 0x01;
+        rcData.channel18 = rcBuff[23] & 0x02;
+        rcData.isFrameLost = rcBuff[23] & 0x04;
+        rcData.isFailSafeActivated = rcBuff[23] & 0x08;
     }
 
     void erCallback(UART_HandleTypeDef *huart)
