@@ -12,6 +12,7 @@
 #include "gpio.h"
 #include "main.h"
 #include "task.h"
+#include "FSi6x.hpp"
 
 
 StackType_t uxMainTaskStack[configMINIMAL_STACK_SIZE];
@@ -20,8 +21,16 @@ StaticTask_t xMainTaskTCB;
 // an example task
 void mainTask(void *pvPara) {
 
+  // Initialize the FSi6X module
+  FSi6x::init();
+
+  // Define the remote controller data
+  static FSi6x::RcData rcData;
+
   while (true) {
 
+    // Get the remote controller data
+    rcData = *FSi6x::getRcData();
   
     vTaskDelay(1);
   }

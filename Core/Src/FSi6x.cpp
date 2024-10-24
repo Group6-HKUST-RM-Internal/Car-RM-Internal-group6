@@ -4,47 +4,8 @@
 
 namespace FSi6x
 {
-    // Constructor
-    typedef struct RcData
-    {
-        // Define the decoded data group of the remote controller
 
-        // Channel 1 to 16
-        uint16_t channel1;
-        uint16_t channel2;
-        uint16_t channel3;
-        uint16_t channel4;
-        uint16_t channel5;
-        uint16_t channel6;
-        uint16_t channel7;
-        uint16_t channel8;
-        uint16_t channel9;
-        uint16_t channel10;
-        uint16_t channel11;
-        uint16_t channel12;
-        uint16_t channel13;
-        uint16_t channel14;
-        uint16_t channel15;
-        uint16_t channel16;
-
-        // Channel 17 and 18
-        uint16_t channel17;
-        uint16_t channel18;
-
-        // Is Frame lost of the remote controller
-        bool isFrameLost;
-
-        // Is fail safe activated of the remote controller
-        bool isFailSafeActivated;
-
-        // Is connected to the remote controller
-        bool isConnected;
-
-        // Is error of the remote controller
-        bool isError;
-    };
-
-    RcData rcData;
+    static RcData rcData;
 
     const RcData *getRcData()
     {
@@ -53,6 +14,26 @@ namespace FSi6x
 
     void resetData()
     {
+        rcData.channel1 = 1024;
+        rcData.channel2 = 1024;
+        rcData.channel3 = 1024;
+        rcData.channel4 = 1024;
+        rcData.channel5 = 240;
+        rcData.channel6 = 240;
+        rcData.channel7 = 240;
+        rcData.channel8 = 240;
+        rcData.channel9 = 240;
+        rcData.channel10 = 240;
+        rcData.channel11 = 1024;
+        rcData.channel12 = 1024;
+        rcData.channel13 = 1024;
+        rcData.channel14 = 1024;
+        rcData.channel15 = 1024;
+        rcData.channel16 = 1024;
+        rcData.channel17 = false;
+        rcData.channel18 = false;
+        rcData.isFrameLost = false;
+        rcData.isFailSafeActivated = false;   
         // TODO: Implement the reset data of the FSi6X module
     }
 
@@ -103,7 +84,7 @@ namespace FSi6x
         rcData.isFailSafeActivated = rcBuff[23] & 0x08;
 
         // Receive the next round of the UART data reception
-        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
     }
 
     void erCallback(UART_HandleTypeDef *huart)
@@ -111,11 +92,14 @@ namespace FSi6x
         // Reset the data of the remote controller
         resetData();
 
+        // Set the remote controller is not connected
+        rcData.isConnected = false;
+
         // Set the error flag of the remote controller
         rcData.isError = true;
 
         // Receive the next round of the UART data reception
-        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
     }
 
     void init()
@@ -127,7 +111,10 @@ namespace FSi6x
         HAL_UART_RegisterCallback(&huart3, HAL_UART_ERROR_CB_ID, erCallback);
 
         // Start the first round of the UART data reception
-        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuff, 25);
+        HAL_UARTEx_ReceiveToIdle_IT(&huart3, rcBuff, 25);
+
+        // Reset the data of the remote controller
+        resetData();
 
         // Set the remote controller is connected
         rcData.isConnected = true;
