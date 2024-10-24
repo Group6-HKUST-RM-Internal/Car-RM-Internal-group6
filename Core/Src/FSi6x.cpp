@@ -68,5 +68,7 @@ namespace FSi6x
     void init()
     {
         // TODO: Implement the initialization of the FSi6X module
+        HAL_UART_RegisterRxEventCallback(&huart3, rcCallback);
+        HAL_UART_RegisterCallback(&huart3, HAL_UART_ERROR_CB_ID, erCallback);
     }
 }
