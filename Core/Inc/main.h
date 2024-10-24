@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BUZZER_Pin GPIO_PIN_0
 #define BUZZER_GPIO_Port GPIOA
+#define MCU6500_CS_Pin GPIO_PIN_4
+#define MCU6500_CS_GPIO_Port GPIOA
 #define WS2812_Pin GPIO_PIN_8
 #define WS2812_GPIO_Port GPIOA
 
